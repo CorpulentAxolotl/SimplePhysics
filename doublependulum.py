@@ -23,14 +23,13 @@ def compute_derivatives(X):
           - l1 * ω1**2 * torch.sin(delta)
           - g * torch.sin(θ2))) / den2
     return torch.stack([ω1, ω2, a1, a2, torch.zeros_like(X[:, 0])], dim=1)
+
 def compute_max(X):
     m = torch.max(torch.stack([torch.abs(X[:, 0]), torch.abs(X[:, 1]), X[:, 4]], dim=1), dim=1).values
     return torch.stack([X[:,0],X[:,1],X[:,2],X[:,3],m], dim=1)
-def polar_color(x, y):
-    """
-    x, y: tensors of same shape, float, representing coordinates
-    Returns: tensor of shape (..., 3), dtype uint8, with RGB colors [0-255]
-    """
+
+def polar_color(x, y): # might've asked chat gpt to create this
+    
     pi = torch.pi
     r = torch.hypot(x, y)  # radius
 
@@ -54,12 +53,7 @@ def polar_color(x, y):
     rgb_uint8 = (rgb * 255).to(torch.uint8)
     return rgb_uint8
 
-def hsv_to_rgb_tensor(h, s, v):
-    """
-    Vectorized HSV to RGB for tensors.
-    h, s, v are tensors of the same shape with values in [0,1].
-    Returns tensor (..., 3) with RGB floats in [0,1].
-    """
+def hsv_to_rgb_tensor(h, s, v): # as well as this
 
     i = torch.floor(h * 6).to(torch.int64)
     f = h * 6 - i
@@ -183,5 +177,6 @@ while running:
     pygame.display.flip()
     clock.tick(200)  # limit to 30 FPS
     
+
 
 pygame.quit()
