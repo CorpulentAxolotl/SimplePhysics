@@ -2,20 +2,20 @@ import torch
 import pygame
 import math
 
-# ---------- PyTorch electric field calculation ----------
+# PyTorch electric field calculation
 
 def compute_electric_forces(r_particles, r_sources, q_sources, k_e=8.987551787e-9):
-    diff = r_particles.unsqueeze(1) - r_sources.unsqueeze(0)  # (N_particles, N_sources, 2)
-    dist_sq = torch.sum(diff ** 2, dim=2) + 1e-20             # avoid div by zero
+    diff = r_particles.unsqueeze(1) - r_sources.unsqueeze(0) # (N_particles, N_sources, 2)
+    dist_sq = torch.sum(diff ** 2, dim=2) + 1e-20 # avoid div by zero
     dist = torch.sqrt(dist_sq)
     dist_cubed = dist_sq * dist
 
-    force_magnitudes = k_e * q_sources / dist_cubed           # (N_particles, N_sources)
-    forces = force_magnitudes.unsqueeze(2) * diff             # vector forces (N_particles, N_sources, 2)
-    net_forces = torch.sum(forces, dim=1)                      # sum over sources (N_particles, 2)
+    force_magnitudes = k_e * q_sources / dist_cubed # (N_particles, N_sources)
+    forces = force_magnitudes.unsqueeze(2) * diff # vector forces (N_particles, N_sources, 2)
+    net_forces = torch.sum(forces, dim=1) # sum over sources (N_particles, 2)
     return net_forces
 
-# ---------- Pygame visualization setup ----------
+# Pygame setup
 
 WIDTH, HEIGHT = 800, 600
 WHITE = (255, 255, 255)
@@ -27,14 +27,14 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Electric Field Visualization")
 clock = pygame.time.Clock()
 
-# ---------- Setup charges and grid ----------
+# setup charges and grid
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # Define source charges and positions
 q_sources = torch.tensor([1e-6, -1e-6, 1e-6, -1e-6], device=device)
-r_sources = torch.tensor([[400.0, 300.0],   # center of screen
-                          [600.0, 300.0],  # to the right
+r_sources = torch.tensor([[400.0, 300.0], # center of screen
+                          [600.0, 300.0], # to the right
                           [300.0, 100.0],
                           [200.0, 400.0]],
                          device=device)
@@ -43,13 +43,13 @@ r_sources = torch.tensor([[400.0, 300.0],   # center of screen
 grid_x = torch.linspace(50, WIDTH-50, 60)
 grid_y = torch.linspace(50, HEIGHT-50, 45)
 xx, yy = torch.meshgrid(grid_x, grid_y)
-positions = torch.stack([xx.flatten(), yy.flatten()], dim=1).to(device)  # shape (N, 2)
+positions = torch.stack([xx.flatten(), yy.flatten()], dim=1).to(device) # shape (N, 2)
 
 # Scale factor to reduce arrow lengths visually
 ARROW_SCALE = 1e19
 
 def draw_arrow(surface, color, start, vector, max_length=20):
-    """Draw an arrow from start point in direction of vector scaled to max_length"""
+    # Draw an arrow from start point in direction of vector scaled to max_length
     vx, vy = vector
     length = math.sqrt(vx*vx + vy*vy)
     if length == 0:
@@ -70,7 +70,7 @@ def draw_arrow(surface, color, start, vector, max_length=20):
             float(end_pos[1] - arrow_size * math.sin(angle + math.pi / 6)))
     pygame.draw.polygon(surface, color, [end_pos, left, right])
 
-# ---------- Main loop ----------
+
 
 running = True
 mousedown = [False]*4
@@ -131,5 +131,6 @@ while running:
 
     pygame.display.flip()
     clock.tick(30)  # limit to 30 FPS
+
 
 pygame.quit()
