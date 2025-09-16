@@ -175,8 +175,9 @@ while running:
     draw_pendulum(wrapped[mousey*N+mousex, 0], wrapped[mousey*N+mousex, 1])
 
     pygame.display.flip()
-    clock.tick(200)  # limit to 30 FPS
+    clock.tick(200)
     
 
 
 pygame.quit()
+
